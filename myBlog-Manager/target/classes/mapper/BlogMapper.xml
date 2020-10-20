@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yan.manage.mapper.BlogMapper">
+    <select id="selBlogAll" resultType="com.yan.manage.entity.Blog">
+    SELECT b.id AS bid,
+        b.title AS title,
+        b.content AS content,
+        t.type_name AS typeName,
+        ta.tag_name AS tagName,
+        b.images AS images,
+        b.recommend AS recommend,
+        b.reprint AS reprint,
+        b.appreciation AS appreciation,
+        b.comments AS comments,
+        b.updatedTime AS updatedTime,
+        b.blog_summary AS blogSummary
+        FROM blog b
+        LEFT JOIN `type` t
+        ON t.type_id = b.blog_type_id
+        LEFT JOIN `tag` ta
+        ON b.blog_tag_id = ta.tag_id
+    </select>
+    <select id="selBlogById" resultType="com.yan.manage.entity.Blog">
+    SELECT
+        b.id AS bid,
+        b.title AS title,
+        b.content AS content,
+        t.type_name AS typeName,
+        ta.tag_name AS tagName,
+        b.images AS images,
+        b.recommend AS recommend,
+        b.reprint AS reprint,
+        b.appreciation AS appreciation,
+        b.comments AS comments,
+        b.updatedTime AS updatedTime,
+        b.blog_summary AS blogSummary,
+        b.blog_tag_id as blogTagId,
+        b.blog_type_id as blogTypeId
+    FROM
+        blog b
+    LEFT JOIN `type` t ON t.type_id = b.blog_type_id
+    LEFT JOIN `tag` ta ON b.blog_tag_id = ta.tag_id
+    WHERE b.id = #{bid}
+    </select>
+    <select id="selBlogByTitle" resultType="com.yan.manage.entity.Blog">
+    SELECT b.id AS bid,
+        b.title AS title,
+        b.content AS content,
+        t.type_name AS typeName,
+        ta.tag_name AS tagName,
+        b.images AS images,
+        b.recommend AS recommend,
+        b.reprint AS reprint,
+        b.appreciation AS appreciation,
+        b.blog_summary AS blogSummary,
+        b.comments AS comments,
+        b.updatedTime AS updatedTime
+        FROM blog b
+        LEFT JOIN `type` t
+        ON t.type_id = b.blog_type_id
+        LEFT JOIN `tag` ta
+        ON b.blog_tag_id = ta.tag_id
+        WHERE b.title = #{title}
+    </select>
+    <insert id="addBlog">
+        insert into blog(id,title,content,images,recommend,reprint,appreciation,comments,updatedTime,blog_type_id,blog_tag_id,blog_summary)
+        values(#{bid},#{title},#{content},#{images},#{recommend},#{reprint},#{appreciation},#{comments},#{updatedTime},#{blogTypeId},#{blogTagId},#{blogSummary})
+    </insert>
+    <delete id="deleteBlog">
+        delete from blog where id = #{bid}
+    </delete>
+    <update id="updateBlog">
+        update blog set title=#{title},content=#{content},images=#{images},reprint=#{reprint},recommend=#{recommend},appreciation=#{appreciation},comments=#{comments},blog_type_id=#{blogTypeId},blog_tag_id=#{blogTagId},blog_summary=#{blogSummary}
+        where id = #{bid}
+    </update>
+    <select id="searchBlog" resultType="com.yan.manage.entity.VO.SearchBlogVO">
+        SELECT
+            b.id AS bid,
+            b.title AS title,
+            b.recommend AS recommend,
+            b.updatedTime AS updatedTime,
+            b.blog_type_id AS blogTypeId,
+            t.type_name AS typeName
+        FROM
+            blog b
+        LEFT JOIN `type` t ON b.blog_type_id = t.type_id
+        <where>
+            <if test="title != null and title != ''">
+                AND b.title like CONCAT('%',#{title},'%')
+            </if>
+            <if test="blogTypeId != 0">
+                AND b.blog_type_id like CONCAT('%',#{blogTypeId},'%')
+            </if>
+            <if test="recommend != null and recommend != ''">
+                AND b.recommend like CONCAT('%',#{recommend},'%')
+            </if>
+        </where>
+    </select>
+</mapper>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yan.mainpage.mapper.BlogPageMapper">
+    <select id="selBlogPage" resultType="com.yan.mainpage.entity.BlogPage">
+        SELECT
+            b.id AS bid,
+            b.title AS title,
+            b.blog_summary AS blogSummary,
+            b.updatedTime AS updatedTime,
+            b.viewnum AS viewNum,
+            b.images AS images,
+            u.image AS image,
+            u.nick_name AS nickName,
+            t.type_name AS typeName
+        FROM blog b
+        LEFT JOIN users u
+        ON b.blog_user_id = u.user_id
+        LEFT JOIN type t
+        ON b.blog_type_id = t.type_id
+        WHERE user_id = 1
+    </select>
+    <select id="selBlogType" resultType="com.yan.mainpage.entity.Type">
+        SELECT
+            t.type_id,
+            t.type_name AS typeName,
+            COUNT(b.title) AS num
+        FROM
+            `type` t
+        LEFT JOIN blog b ON b.blog_type_id = t.type_id
+        GROUP BY
+            t.type_name
+        ORDER BY
+            num DESC
+    </select>
+    <select id="selBlogTag" resultType="com.yan.mainpage.entity.Tag">
+        SELECT
+            t.tag_id AS tagId,
+            t.tag_name AS tagName,
+            COUNT(b.title) AS num
+        FROM
+            `tag` t
+        LEFT JOIN blog b ON t.tag_id = b.blog_tag_id
+        GROUP BY
+            t.tag_name
+        ORDER BY num DESC
+    </select>
+    <select id="selBlogDetailByTitle" resultType="com.yan.mainpage.entity.BlogPage">
+        SELECT
+            b.id AS bid,
+            b.viewnum AS viewNum,
+            b.images AS images,
+            b.title AS title,
+            b.content AS content,
+            b.appreciation AS appreciation,
+            b.updatedTime AS updatedTime,
+            u.image AS image,
+            u.nick_name AS nickName,
+            t.tag_name AS tagName
+        FROM
+            blog b
+        LEFT JOIN users u ON b.blog_user_id = u.user_id
+        LEFT JOIN tag t ON b.blog_tag_id = t.tag_id
+        WHERE
+            b.id = #{bid}
+    </select>
+    <select id="selRecommends" resultType="com.yan.mainpage.entity.Recommends">
+        SELECT
+            id AS bid,
+            title AS title,
+            updatedTime AS updatedTime
+        FROM
+            blog
+        ORDER BY
+            updatedTime DESC
+    </select>
+    <select id="searchBlog" resultType="com.yan.mainpage.entity.BlogPage">
+            SELECT
+                b.id AS bid,
+                b.title AS title,
+                b.blog_summary AS blogSummary,
+                b.updatedTime AS updatedTime,
+                b.viewnum AS viewNum,
+                b.images AS images,
+                u.image AS image,
+                u.nick_name AS nickName,
+                t.type_name AS typeName
+            FROM blog b
+            LEFT JOIN users u
+            ON b.blog_user_id = u.user_id
+            LEFT JOIN type t
+            ON b.blog_type_id = t.type_id
+            LEFT JOIN tag ta
+            ON b.blog_tag_id = ta.tag_id
+            <where>
+                <if test="blogSummary != null and blogSummary != ''">
+                    AND b.blog_summary LIKE CONCAT('%',#{blogSummary},'%')
+                </if>
+            </where>
+    </select>
+    <select id="selBLogByTypeId" resultType="com.yan.mainpage.entity.BlogPage">
+        SELECT
+            t.type_id AS typeId,
+            t.type_name AS typeName,
+            b.id as bid,
+            b.title AS title,
+            b.images AS images,
+            b.blog_summary AS blogSummary,
+            b.viewnum AS viewNum,
+            b.updatedTime AS updatedTime,
+            u.image AS image,
+            u.nick_name AS nickName
+        FROM
+            blog b
+        LEFT JOIN `type` t ON t.type_id = b.blog_type_id
+        LEFT JOIN users u ON b.blog_user_id = u.user_id
+        WHERE
+            type_id = #{typeId}
+    </select>
+    <select id="selBlogByTagId" resultType="com.yan.mainpage.entity.BlogPage">
+        SELECT
+            t.tag_id AS tagId,
+            ty.type_name AS typeName,
+            b.id as bid,
+            b.title AS title,
+            b.images AS images,
+            b.blog_summary AS blogSummary,
+            b.viewnum AS viewNum,
+            b.updatedTime AS updatedTime,
+            u.image AS image,
+            u.nick_name AS nickName
+        FROM
+            blog b
+        LEFT JOIN `tag` t ON t.tag_id = b.blog_tag_id
+        LEFT JOIN `type`ty ON ty.type_id = b.blog_type_id
+        LEFT JOIN users u ON b.blog_user_id = u.user_id
+        WHERE
+            tag_id = #{tagId}
+    </select>
+</mapper>
